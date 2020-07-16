@@ -1,0 +1,35 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: aws-efs2
+provisioner: lw-course/aws-efs2
+
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: jumla1
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "aws-efs2"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: efs-mysql
+  annotations:
+    volume.beta.kubernetes.io/storage-class: "aws-efs2"
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+        requests:
+             storage: 5Gi

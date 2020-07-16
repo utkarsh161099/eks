@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jom
+  labels:
+    app: jom
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: wix
+    tier: frontend
+  type: LoadBalancer
+
+
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: jom
+  labels:
+    app: jom
+spec:
+  selector:
+    matchLabels:
+      app: jom
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+          app: jom
+          tier: frontend
+    spec:
+      containers:
+      - image:  joomla:3.9.18-php7.4-apache
+        name: wix
+        env:
+        - name: JOOMLA_DB_HOST
+          value: wix-mysql
+        - name: JOOMLA_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        ports:
+        - containerPort:  80
+          name: wix
+        volumeMounts:
+        - name: wix-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: wix-persistent-storage
+        persistentVolumeClaim:
+          claimName: efs-jom
